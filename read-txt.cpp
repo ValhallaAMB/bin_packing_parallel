@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream> // For file reading
 #include <vector>
+#include <algorithm> // For sort()
 
 // Allows the use of standard library functions and objects
 // without needing to prefix them with std::
@@ -31,15 +32,23 @@ int main(int argc, char const *argv[])
             product *= stoi(myText.substr(0, pos));
             myText.erase(0, pos + 1);
         }
-        product *= stoi(myText); // Multiply the last number
+        product *= stoi(myText) * 2; // Multiply the last number
 
         // Output the text from the file
         weight.push_back(product); // Convert string to int and store in weight vector
-        cout << "Weight[" << i << "] = " << weight.at(i) << endl;
+        // cout << "Weight[" << i << "] = " << weight.at(i) << endl;
         i++;
     }
 
     // Close the file
     MyReadFile.close();
+
+    sort(weight.begin(), weight.end(), std::greater<int>());
+
+    for (int i = 0; i < weight.size(); i++)
+    {
+        cout << "Sorted Weight[" << i << "] = " << weight.at(i) << endl;
+    }
+
     return 0;
 }
