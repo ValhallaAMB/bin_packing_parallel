@@ -38,7 +38,18 @@ int firstFit(vector<int> &box, int length, int capacity)
             res++;
         }
     }
+    // Testing the bin_rem array
+    for (int k = 0; k < res; k++)
+    {
+        // Leftover space in the bin
+        cout << "Bin " << k << ": " << bin_rem[k] << endl;
+
+        // Bin size
+        // cout << "Bin " << k << ": " << capacity - bin_rem[k] << endl;
+    } 
+
     delete[] bin_rem;
+
     return res;
 }
 

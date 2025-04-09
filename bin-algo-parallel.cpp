@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <fstream> // For file reading
-#include <omp.h>   // For OpenMP
 #include <ctime>   // For time measurement
 #include <chrono>  // For time measurement
 
@@ -19,29 +18,44 @@ int firstFit(vector<int> &box, int length, int capacity)
     // We have to create an array to store remaining space in bins there can be maximum n bins
     // bin_ren = remaining space in bin
     int *bin_rem = new int[length];
-    // We have to place elements one by one
 
+// We have to place elements one by one
+#pragma omp parallel for
     for (int i = 0; i < length; i++)
     {
         // We have to find the first bin that can accommodate box[i]
         int j;
+        bool found = false;
 
-        for (j = 0; j < res; j++)
+        for (j = 0; j < res && !found; j++)
         {
+#pragma omp critical // Ensure that only one thread accesses the bin_rem array at a time
             if (bin_rem[j] >= box[i])
             {
                 bin_rem[j] = bin_rem[j] - box[i];
-                break;
+                found = true;
             }
         }
-        // If no bin could accommodate box[i]
-        if (j == res)
+
+// If no bin could accommodate box[i]
+#pragma omp critical // Ensure that only one thread accesses the bin_rem array at a time
+        if (j == res && !found)
         {
             bin_rem[res] = capacity - box[i];
             res++;
         }
     }
+    for (int k = 0; k < res; k++)
+    {
+        // Leftover space in the bin
+        cout << "Bin " << k << ": " << bin_rem[k] << endl;
+
+        // Bin size
+        // cout << "Bin " << k << ": " << capacity - bin_rem[k] << endl;
+    }
+
     delete[] bin_rem;
+
     return res;
 }
 
@@ -110,7 +124,7 @@ int main(int argc, char const *argv[])
 
     auto duration = duration_cast<microseconds>(stop - start);
 
-    cout << "\nTime in microsconds: " << duration.count() << endl;
+    cout << "\nTime in microseconds: " << duration.count() << endl;
 
     return 0;
 }
