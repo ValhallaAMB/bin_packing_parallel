@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream> // For file reading
+#include <omp.h>   // For OpenMP
 #include <ctime>   // For time measurement
 #include <chrono>  // For time measurement
 
@@ -19,10 +20,12 @@ int firstFit(vector<int> &box, int length, int capacity)
     // bin_ren = remaining space in bin
     int *bin_rem = new int[length];
     // We have to place elements one by one
+
     for (int i = 0; i < length; i++)
     {
         // We have to find the first bin that can accommodate box[i]
         int j;
+
         for (j = 0; j < res; j++)
         {
             if (bin_rem[j] >= box[i])
@@ -107,7 +110,7 @@ int main(int argc, char const *argv[])
 
     auto duration = duration_cast<microseconds>(stop - start);
 
-    cout << "\nTime in microseconds: " << duration.count() << endl;
+    cout << "\nTime in microsconds: " << duration.count() << endl;
 
     return 0;
 }
