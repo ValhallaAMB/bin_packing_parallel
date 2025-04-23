@@ -88,10 +88,8 @@ int firstFit(int box[], int length, int capacity)
 
     // Testing the bin_rem array
     for (int k = 0; k < res; k++)
-    {
         // Leftover space in the bin
-        cout << bin_rem[k] << endl;
-    }
+        cout << "Bin " << k << ": " << bin_rem[k] << endl;
 
     return res;
 }
