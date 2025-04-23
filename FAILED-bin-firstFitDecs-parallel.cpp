@@ -1,3 +1,10 @@
+/********************************** IMPORTANT NOTE **********************************
+
+Not a successful implementation of parallel first fit decreasing algorithm.
+Sorting the boxes is useless, since when using parallelization, the order of the boxes is not guaranteed.
+
+********************************** IMPORTANT NOTE **********************************/
+
 #include <iostream>
 #include <stdio.h>
 #include <algorithm> // For sort()
@@ -6,6 +13,7 @@
 #include <fstream> // For file reading
 #include <ctime>   // For time measurement
 #include <chrono>  // For time measurement
+#include <omp.h>
 
 using namespace std;
 using namespace chrono;
@@ -19,39 +27,40 @@ int firstFit(vector<int> &box, int length, int capacity)
     // bin_ren = remaining space in bin
     int *bin_rem = new int[length];
 
-// We have to place elements one by one
+    // We have to find the first bin that can accommodate box[i]
+    int j;
+
 #pragma omp parallel for
     for (int i = 0; i < length; i++)
     {
-        // We have to find the first bin that can accommodate box[i]
-        int j;
         bool found = false;
 
-        for (j = 0; j < res && !found; j++)
+        for (int j = 0; j < res && !found; j++)
         {
+
 #pragma omp critical // Ensure that only one thread accesses the bin_rem array at a time
-            if (bin_rem[j] >= box[i])
             {
-                bin_rem[j] = bin_rem[j] - box[i];
-                found = true;
+                if (bin_rem[j] >= box[i])
+                {
+                    bin_rem[j] -= box[i];
+                    found = true;
+                }
             }
         }
 
-// If no bin could accommodate box[i]
-#pragma omp critical // Ensure that only one thread accesses the bin_rem array at a time
-        if (j == res && !found)
+        // If no bin could accommodate box[i]
+        if (!found)
         {
             bin_rem[res] = capacity - box[i];
             res++;
         }
     }
+    
+    // Testing the bin_rem array
     for (int k = 0; k < res; k++)
     {
         // Leftover space in the bin
-        cout << "Bin " << k << ": " << bin_rem[k] << endl;
-
-        // Bin size
-        // cout << "Bin " << k << ": " << capacity - bin_rem[k] << endl;
+        cout << bin_rem[k] << endl;
     }
 
     delete[] bin_rem;
@@ -69,6 +78,7 @@ int firstFitDec(vector<int> &box, int length, int C)
     return firstFit(box, length, C);
 }
 
+// Read text file
 vector<int> readTxtFile()
 {
     // Create a text string, which is used to output the text file
