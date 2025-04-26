@@ -4,50 +4,33 @@
 #include <string>
 #include <vector>
 #include <fstream> // For file reading
-#include <ctime>   // For time measurement
-#include <chrono>  // For time measurement
+#include <sstream> // For istringstream
 #include <omp.h>
 
 using namespace std;
-using namespace chrono;
 
 vector<int> readTxtFile()
 {
-    // Create a text string, which is used to output the text file
-    string extractedText;
+    string extractedText;               // Create a text string, which is used to output the text file
+    vector<int> box;                    // There are 3000 boxes/entries in the text file
+    ifstream readFile("box_sizes.txt"); // Read from the text file
 
-    // There are 3000 boxes/entries in the text file
-    vector<int> box;
-
-    // Read from the text file
-    ifstream readFile("box_sizes.txt");
-
-    // Counter
-    int i = 0;
-
-    // Use a while loop together with the getline() function to read the file line by line
+    // Check if the file opened successfully
     while (getline(readFile, extractedText))
     {
-        int product = 1;
-        size_t pos = 0;
+        int l, w, h;
+        // Use istringstream to extract integers from the string
+        istringstream iss(extractedText);
 
-        while ((pos = extractedText.find(' ')) != string::npos)
+        // Read the three integers from the string
+        if (iss >> l >> w >> h)
         {
-            // stoi = Converts string to int
-            product *= stoi(extractedText.substr(0, pos));
-            extractedText.erase(0, pos + 1);
+            int product = l * w * h * 2;
+            box.push_back(product); // Calculate the surface area of the box and add it to the vector
         }
-        product *= stoi(extractedText) * 2; // Multiply the last number
-
-        // Output the text from the file
-        box.push_back(product); // Store in box vector
-
-        // cout << "box" << i << "] = " << box.at(i) << endl;
-        i++;
     }
 
-    // Close the file
-    readFile.close();
+    readFile.close(); // Close the file
     return box;
 }
 
@@ -85,23 +68,22 @@ int nextFit(vector<int> &box, int length, int capacity)
 int main(int argc, char const *argv[])
 {
     // Start measuring time
-    auto start = high_resolution_clock::now();
+    double start_time = omp_get_wtime();
 
+    // Read the box sizes from the text file using the readTxtFile function
     vector<int> box = readTxtFile();
 
     // surface area of the Bin capacity = 2(h*l*w)
     int capacity = 2 * (50 * 50 * 100);
     int length = box.size();
 
-    cout << "Number of bins required in Next Fit: " << nextFit(box, length, capacity) << endl;
+    // Perform First Fit algorithm
+    cout << "Number of bins required in First Fit: " << nextFit(box, length, capacity) << endl;
 
     // Stop measuring time
-    auto stop = high_resolution_clock::now();
-
-    // Calculate the duration
-    auto duration = duration_cast<microseconds>(stop - start);
-
-    cout << "\nTime in microseconds: " << duration.count() << endl;
+    double end_time = omp_get_wtime();
+    // Calculate the time taken in milliseconds
+    cout << "Time taken: " << (end_time - start_time) * 1000 << " milliseconds" << endl;
 
     return 0;
 }
