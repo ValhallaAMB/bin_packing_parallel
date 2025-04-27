@@ -11,7 +11,7 @@ I was unable to use **First Fit** Decreasing in *parallel* since it is pointless
 ## Set up
 
 1. Follow [C/C++ for Visual Studio Code](https://code.visualstudio.com/docs/languages/cpp) installation process
-2. Make this change in `tasks.json`. Convert `-g` to `-fopenmp` inside of `"args"`
+2. After compiling the code, make this change in `tasks.json`. Convert `-g` to `-fopenmp` inside of `"args"`
 ```
 "args": [..., "-g", ...] --> "args": [..., "-fopenmp", ...] 
 ``` 
